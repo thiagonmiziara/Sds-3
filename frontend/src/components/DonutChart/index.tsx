@@ -3,6 +3,7 @@ import axios from "axios";
 
 import {BASE_URL} from "utils/requests";
 import {SaleSum} from "../types/sale"
+import { useEffect, useState } from "react";
 
 type ChartDataProps ={
   labels: string[];
@@ -11,18 +12,21 @@ type ChartDataProps ={
 
 export function DonutChart(){
 
-  let chatData: ChartDataProps ={labels:[],series:[]};
+  const[chartData, setChartData] = useState<ChartDataProps>({ 
+    series:[], labels: []
+  });
 
- 
-    axios.get(`${BASE_URL}/sales/amount-by-seller`)
-    .then(response => {
+  
+  useEffect(() => {
+    axios.get(`${BASE_URL}/sales/amount-by-seller`).then((response) => {
       const data = response.data as SaleSum[];
-      const myLabels = data.map(labels => labels.sellerName);
-      const mySeries = data.map(series => series.sum);
+      const myLabels = data.map((labels) => labels.sellerName);
+      const mySeries = data.map((series) => series.sum);
 
-      chatData={labels: myLabels, series: mySeries}
-      console.log(chatData);
+      setChartData({ labels: myLabels, series: mySeries });
     });
+  }, [chartData]);
+   
  
         
   // const mockData = {
@@ -38,8 +42,8 @@ export function DonutChart(){
 
 
   return(
-    <Chart options={{...options, labels: chatData.labels}}
-      series={chatData.series}
+    <Chart options={{...options, labels: chartData.labels}}
+      series={chartData.series}
       type="donut"
       height="240"
     />
